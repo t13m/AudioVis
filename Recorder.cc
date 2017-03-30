@@ -8,43 +8,23 @@
 Recorder * Recorder::_recorderObj = NULL;
 
 void Recorder::initPortaudio() {
-    PaError err = Pa_Initialize();
-    if (err != paNoError) {
-        throw std::runtime_error("Portaudio not initialized");
-    }
-
-    _paParam.device = Pa_GetDefaultInputDevice();
-    printf( "Input device # %d.\n", _paParam.device ); /* print input device number */
-    printf( "Input LL: %g s\n", Pa_GetDeviceInfo( _paParam.device )->defaultLowInputLatency );
-    printf( "Input HL: %g s\n", Pa_GetDeviceInfo( _paParam.device )->defaultHighInputLatency );
-    _paParam.channelCount = 1;
-    _paParam.sampleFormat = paFloat32;
-    _paParam.suggestedLatency = Pa_GetDeviceInfo( _paParam.device )->defaultHighInputLatency;
-    _paParam.hostApiSpecificStreamInfo = NULL;
     _recorderObj = this;
+    _audio = new RtAudio();
+    _rtIParam.deviceId = _audio->getDefaultInputDevice();
+    _rtIParam.nChannels = 2;
+    _rtIParam.firstChannel = 0;
 
-    err = Pa_OpenStream(
-            &_paStream,
-            &_paParam,
-            NULL,
-            _fs,
-            _bufsize,
-            paNoFlag,
-            callback,
-            NULL
-    );
-    if (err != paNoError) {
-        throw std::runtime_error("Portaudio stream is not open");
+    try {
+        _audio->openStream(NULL, &_rtIParam, RTAUDIO_FLOAT32, _fs, &_bufsize, &callback);
+    } catch (RtAudioError &error) {
+        error.printMessage();
     }
-    err = Pa_StartStream( _paStream );
-    if (err != paNoError) {
-        throw std::runtime_error("Portaudio stream is not started");
-    }
+    _audio->startStream();
 }
 
 Recorder::~Recorder() {
-    auto err = Pa_StopStream( _paStream );
-    Pa_Terminate();
+    _audio->stopStream();
+    delete _audio;
     delete [] _data;
 }
 
@@ -57,8 +37,8 @@ void Recorder::StartRecording() {
 void Recorder::StopRecording() {
     _recording = false;
 }
-int Recorder::_callback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer,
-                       const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData) {
+int Recorder::_callback(void *outputBuffer, void *inputBuffer, unsigned int framesPerBuffer,
+                        double timeInfo, RtAudioStreamStatus statusFlags, void *userData) {
     if (_recording) {
         const float *pdata = static_cast<const float *>(inputBuffer);
         std::copy(pdata, pdata + framesPerBuffer, _data);

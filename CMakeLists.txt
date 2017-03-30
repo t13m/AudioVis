@@ -37,13 +37,23 @@ if(SFML_FOUND)
 endif()
 
 # Detect and add PortAudio
-find_package(PORTAUDIO)
-if(PORTAUDIO_FOUND)
-    include_directories(${PORTAUDIO_INCLUDE_DIR})
-    target_link_libraries(${EXECUTABLE_NAME} ${PORTAUDIO_LIBRARIES})
-    MESSAGE( STATUS "PORTAUDIO_INCLUDE_DIR:       " ${PORTAUDIO_INCLUDE_DIR} )
-    MESSAGE( STATUS "PORTAUDIO_LIBRARIES:         " ${PORTAUDIO_LIBRARIES} )
+#find_package(PORTAUDIO)
+#if(PORTAUDIO_FOUND)
+#    include_directories(${PORTAUDIO_INCLUDE_DIR})
+#    target_link_libraries(${EXECUTABLE_NAME} ${PORTAUDIO_LIBRARIES})
+#    MESSAGE( STATUS "PORTAUDIO_INCLUDE_DIR:       " ${PORTAUDIO_INCLUDE_DIR} )
+#    MESSAGE( STATUS "PORTAUDIO_LIBRARIES:         " ${PORTAUDIO_LIBRARIES} )
+#endif()
+
+find_package(RTAUDIO)
+if(RTAUDIO_FOUND)
+    MESSAGE( STATUS "RTAUDIO_INCLUDE_DIR:       " ${RTAUDIO_INCLUDE_DIR} )
+    MESSAGE( STATUS "RTAUDIO_LIBRARIES:         " ${RTAUDIO_LIBRARIES} )
+    include_directories(${RTAUDIO_INCLUDE_DIR})
+    target_link_libraries(${EXECUTABLE_NAME} ${RTAUDIO_LIBRARIES})
 endif()
+
+
 
 
 # Install target

@@ -1,3 +1,4 @@
+
 #include "config.h"
 #include <iostream>
 #include <SFML/Graphics.hpp>
@@ -22,6 +23,7 @@ static void getAudioFrame(void* data) {
     for (int i = 0; i < frameLength; i ++)
         audioFramePower[i] = audioFrameFFT[2 * i] * audioFrameFFT[2 * i]
                              + audioFrameFFT[2 * i + 1] * audioFrameFFT[2 * i + 1];
+
 }
 
 int main(int argc, char* argv[]) {
@@ -33,7 +35,7 @@ int main(int argc, char* argv[]) {
     sf::RenderWindow window(sf::VideoMode(1024, 600), "myproject");
     window.setFramerateLimit(20);
 
-    Recorder recorder(16000, 1024, getAudioFrame);
+    Recorder recorder(44100, 1024, getAudioFrame);
     recorder.StartRecording();
 
 
@@ -68,3 +70,70 @@ int main(int argc, char* argv[]) {
 
     recorder.StopRecording();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+#include "RtAudio.h"
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
+int record( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
+            double streamTime, RtAudioStreamStatus status, void *userData )
+{
+    if ( status )
+        std::cout << "Stream overflow detected!" << std::endl;
+    // Do something with the data in the "inputBuffer" buffer.
+    return 0;
+}
+int main()
+{
+    RtAudio adc;
+    if ( adc.getDeviceCount() < 1 ) {
+        std::cout << "\nNo audio devices found!\n";
+        exit( 0 );
+    }
+    RtAudio::StreamParameters parameters;
+    parameters.deviceId = adc.getDefaultInputDevice();
+    parameters.nChannels = 2;
+    parameters.firstChannel = 0;
+    unsigned int sampleRate = 44100;
+    unsigned int bufferFrames = 256; // 256 sample frames
+    try {
+        adc.openStream( NULL, &parameters, RTAUDIO_SINT16,
+                        sampleRate, &bufferFrames, &record );
+        adc.startStream();
+    }
+    catch ( RtAudioError& e ) {
+        e.printMessage();
+        exit( 0 );
+    }
+
+    char input;
+    std::cout << "\nRecording ... press <enter> to quit.\n";
+    std::cin.get( input );
+    try {
+        // Stop the stream
+        adc.stopStream();
+    }
+    catch (RtAudioError& e) {
+        e.printMessage();
+    }
+    if ( adc.isStreamOpen() ) adc.closeStream();
+    return 0;
+}
+
+*/

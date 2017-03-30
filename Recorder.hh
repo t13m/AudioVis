@@ -7,7 +7,7 @@
 
 #include <functional>
 #include <thread>
-#include "portaudio.h"
+#include "RtAudio.h"
 
 class Recorder {
 public:
@@ -29,11 +29,12 @@ public:
     static Recorder* _recorderObj;
 
 private:
-    int _fs, _bufsize;
+    unsigned int _fs, _bufsize;
     float *_data;
 
-    PaStream *_paStream;
-    PaStreamParameters _paParam;
+    RtAudio *_audio;
+    RtAudio::StreamParameters _rtIParam, _rtOParam;
+    RtAudio::StreamOptions _rtOptions;
 
     bool _recording;
     std::function<void(void*)> _notify;
@@ -41,19 +42,13 @@ private:
     void initPortaudio();
 
 
-    static int callback(const void *inputBuffer, void *outputBuffer,
-                    unsigned long framesPerBuffer,
-                    const PaStreamCallbackTimeInfo* timeInfo,
-                    PaStreamCallbackFlags statusFlags,
-                    void *userData ) {
-        return _recorderObj->_callback(inputBuffer, outputBuffer, framesPerBuffer,
+    static int callback(void *outputBuffer, void *inputBuffer, unsigned int framesPerBuffer,
+                        double timeInfo, RtAudioStreamStatus statusFlags, void *userData) {
+        return _recorderObj->_callback(outputBuffer, inputBuffer, framesPerBuffer,
                                        timeInfo, statusFlags, userData);
     }
-    int _callback(const void *inputBuffer, void *outputBuffer,
-                 unsigned long framesPerBuffer,
-                 const PaStreamCallbackTimeInfo* timeInfo,
-                 PaStreamCallbackFlags statusFlags,
-                 void *userData );
+    int _callback(void *outputBuffer, void *inputBuffer, unsigned int framesPerBuffer,
+                  double timeInfo, RtAudioStreamStatus statusFlags, void *userData);
 
 };
 
