@@ -1,0 +1,2 @@
+#define AudioVis_VERSION_MAJOR @AudioVis_VERSION_MAJOR@
+#define AudioVis_VERSION_MINOR @AudioVis_VERSION_MINOR@
