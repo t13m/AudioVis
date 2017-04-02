@@ -23,7 +23,7 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 # Define sources and executable
 set(EXECUTABLE_NAME "AudioVis")
-add_executable(${EXECUTABLE_NAME} main.cpp Recorder.cc Recorder.hh FFT.hh)
+add_executable(${EXECUTABLE_NAME} main.cpp Recorder.cc Recorder.hh FFT.hh F0Estimator.cc F0Estimator.hh)
 
 
 # Detect and add SFML

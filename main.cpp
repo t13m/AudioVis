@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "Recorder.hh"
 #include "FFT.hh"
+#include "F0Estimator.hh"
 
 using namespace std;
 
@@ -11,6 +12,7 @@ float audioFrame[1024];
 float audioFrameFFT[2048];
 float audioFramePower[1024];
 GFFT<10, float> FFT;
+float freq = 0, qfreq = 0;
 static void getAudioFrame(void* data) {
     copy(static_cast<float*>(data), static_cast<float*>(data) + frameLength, audioFrame);
 
@@ -22,6 +24,9 @@ static void getAudioFrame(void* data) {
     for (int i = 0; i < frameLength; i ++)
         audioFramePower[i] = audioFrameFFT[2 * i] * audioFrameFFT[2 * i]
                              + audioFrameFFT[2 * i + 1] * audioFrameFFT[2 * i + 1];
+    float p = F0Estimator::EstimatePeriod(audioFrame, frameLength, 32, 320, qfreq);
+    if (qfreq > 0.8)
+        freq = 16000.0 / p;
 }
 
 int main(int argc, char* argv[]) {
@@ -60,7 +65,7 @@ int main(int argc, char* argv[]) {
             spectrum[i*2+1].color = sf::Color::White;
 
         }
-
+        std::cout << "Current Frequency: " << freq << " || Q: " << qfreq << std::endl;
         window.draw(waveform);
         window.draw(spectrum);
         window.display();
